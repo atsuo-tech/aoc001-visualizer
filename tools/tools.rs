@@ -311,6 +311,7 @@ fn main() {
         let sub_command = &args[2];
         if sub_command == "dir" {
             let mut sum = 0;
+            let mut count = 0;
             let input_dir = &args[3];
             let test_command = &args[4];
             let entries = std::fs::read_dir(input_dir).unwrap();
@@ -369,16 +370,18 @@ fn main() {
 
                     for i in 0..n {
                         for j in 0..n {
-                            score += (buff.now_state[i * n + j] - buff.b_state[i * n + j]).pow(2);
+                            score += ((buff.now_state[i * n + j] as i32) - (buff.b_state[i * n + j] as i32)).pow(2) as u32;
                         }
                     }
 
                     let last_score = (1e9 * ((n * n) as f64) / (score as f64)).round();
                     println!("Score: {} (Error: {} in {:?})", last_score, score, path);
                     sum += last_score as u32;
+                    count += 1;
                 }
             }
             println!("Total Score: {}", sum);
+            println!("Average Score: {}", sum as f64 / count as f64);
         }
     }
 }
