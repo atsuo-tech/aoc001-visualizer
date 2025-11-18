@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Tools</title>
+</head>
+
+<body>
+	<h1>Tools 使用方法</h1>
+	<p>
+		Tools を<a href="tools.exe">ダウンロード (Windows版)</a>し、コマンドプロンプトを利用して操作してください。
+		<br />
+		Windows 版以外には、<a href="tools">tools (Ubuntu版)</a>があります。
+		<br />
+		どちらにも該当しない場合は、ビルド前の<a href="tools.rs">tools.rs</a>をビルドして利用してください。
+	</p>
+	<h2>テストケース生成</h2>
+	<h3>一つだけ</h3>
+	<code>tools gen once ./input 1234</code>
+	<p>
+		ランダムシード 1234 を用いてテストケースを一つ生成し、input フォルダに保存します。
+		<br />
+		ファイル名は <code>input_1234.txt</code> となります。
+	</p>
+	<h3>ファイルから</h3>
+	<code>tools gen list ./input seed.txt</code>
+	<p>
+		<code>seed.txt</code> に記載されたランダムシードを用いて複数のテストケースを生成し、input フォルダに保存します。
+		<br />
+		ファイル名は <code>input_&lt;シード値&gt;.txt</code> となります。
+	</p>
+	<h3>ランダムに</h3>
+	<code>tools gen random ./input 2000</code>
+	<p>
+		ランダムに 2000 個のテストケースを生成し、input フォルダに保存します。
+		<br />
+		ファイル名は <code>input_&lt;シード値&gt;.txt</code> となります。
+	</p>
+	<h2>テスト</h2>
+	<code>tools test dir ./input ./Main.exe</code>
+	<p>
+		<code>input</code> フォルダ内のすべてのテストケースを用いて <code>Main.exe</code> をテストします。
+	</p>
+</body>
+
+</html>
