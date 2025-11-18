@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>AOC001 Visualizer</title>
+	<style>
+		body {
+			font-family: 'Arial', sans-serif;
+			background-color: #f0f0f0;
+			padding: 20px;
+			color: #333;
+		}
+
+		h1 {
+			color: #0066cc;
+			border-bottom: 2px solid #ccc;
+			padding-bottom: 10px;
+		}
+
+		.container {
+			display: flex;
+			gap: 20px;
+			margin-top: 20px;
+			align-items: flex-start;
+		}
+
+		.section {
+			background-color: white;
+			padding: 15px;
+			border-radius: 8px;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		}
+
+		.grid-container {
+			flex: 1;
+			text-align: center;
+		}
+
+		.grid-header {
+			font-weight: bold;
+			margin-bottom: 10px;
+			color: #555;
+		}
+
+		.info-panel {
+			width: 300px;
+			display: flex;
+			flex-direction: column;
+			gap: 15px;
+		}
+
+		textarea {
+			width: 100%;
+			height: 120px;
+			padding: 10px;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			font-family: 'Consolas', monospace;
+			box-sizing: border-box;
+		}
+
+		button {
+			padding: 10px 15px;
+			background-color: #4CAF50;
+			color: white;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+			font-weight: bold;
+			transition: background-color 0.3s;
+			margin-top: 5px;
+		}
+
+		button.red {
+			background-color: #f44336;
+		}
+
+		button.red:hover {
+			background-color: #da190b;
+		}
+
+		button.blue {
+			background-color: #2196F3;
+		}
+
+		button.blue:hover {
+			background-color: #0b7dda;
+		}
+
+		button.orange {
+			background-color: #ff9800;
+		}
+
+		button.orange:hover {
+			background-color: #e68a00;
+		}
+
+		button:hover {
+			background-color: #45a049;
+		}
+
+		.score-box {
+			font-size: 1.5em;
+			font-weight: bold;
+			color: #d9534f;
+			padding: 10px;
+			border: 2px dashed #d9534f;
+			border-radius: 4px;
+			text-align: center;
+		}
+
+		.label {
+			font-size: 0.9em;
+			color: #777;
+			margin-top: 5px;
+		}
+
+		.operation-list {
+			max-height: 150px;
+			/* 短く */
+			overflow-y: auto;
+			border: 1px solid #eee;
+			padding: 5px;
+			font-size: 0.85em;
+		}
+
+		.op-item {
+			font-family: 'Consolas', monospace;
+			margin-bottom: 2px;
+			border-bottom: 1px dotted #eee;
+		}
+
+		.op-item.current {
+			background-color: #e6f7ff;
+			font-weight: bold;
+		}
+
+		.controls {
+			display: flex;
+			gap: 10px;
+			margin-top: 10px;
+			align-items: center;
+		}
+
+		.controls label {
+			white-space: nowrap;
+		}
+
+		.controls input[type="range"] {
+			flex-grow: 1;
+		}
+
+		.input-group {
+			margin-bottom: 10px;
+		}
+
+		.input-group label {
+			display: block;
+			margin-bottom: 3px;
+			font-weight: bold;
+		}
+
+		.input-group input[type="number"] {
+			width: 80px;
+			padding: 5px;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="container">
+		<div class="section">
+			<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+				<div>
+					<h2>スコア</h2>
+					<div class="score-box" id="score-display">0.00</div>
+					<p>平均二乗誤差（低いほどよい）：<span id="error-display">inf</span></p>
+					<h2>ランダム生成</h2>
+					<div class="input-group">
+						<label for="seed">Seed:</label>
+						<input type="number" id="seed" value="0" min="0" oninput="generateRandomData()">
+					</div>
+					<h2>入力データ</h2>
+					<textarea id="input-data-area" placeholder="ここに初期グリッド、目標グリッド、操作定義を入力"
+						onchange="loadInput()"></textarea>
+				</div>
+				<div>
+					<h2>提出操作</h2>
+					<textarea id="output-data-area" placeholder="<Length>&#10;<op_id> <x> <y>&#10;..."
+						onchange="applyOutput()"></textarea>
+					<div class="controls">
+						<p>操作</p>
+						<input type="range" id="operation-slider" min="0" max="0" value="0" oninput="applySlider()">
+					</div>
+					<div class="label">
+						現在の操作: <span id="current-op-index">0</span> /
+						総操作数: <span id="op-count">0</span> /
+						最大使用数: <span id="max-uses">TBD</span>
+					</div>
+					<h2>操作定義</h2>
+					<div class="operation-list" id="op-definitions">
+						(データを読み込んでください)
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="grid-container section">
+			<div class="grid-header">現在</div>
+			<svg id="grid-A-prime" width="400" height="400"></svg>
+		</div>
+
+		<div class="grid-container section">
+			<div class="grid-header">目標</div>
+			<svg id="grid-B" width="400" height="400"></svg>
+		</div>
+
+		<div class="grid-container section">
+			<div class="grid-header">差分</div>
+			<svg id="grid-diff" width="400" height="400"></svg>
+		</div>
+	</div>
+
+	<script src="main.js" type="module"></script>
+
+</body>
+
+</html>
